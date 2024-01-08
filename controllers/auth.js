@@ -1,4 +1,8 @@
 const User = require("../models/user");
+
+
+
+
 exports.createUser = async (req, res, next) => {
   const {
     first_name,
@@ -11,7 +15,7 @@ exports.createUser = async (req, res, next) => {
     contact_number,
     alter_Contact_Number,
     email,
-    Password,
+    password,
     confirmPassword,
   } = req.body;
 
@@ -26,7 +30,7 @@ exports.createUser = async (req, res, next) => {
     contact_number,
     alter_Contact_Number,
     email,
-    Password,
+    password,
     confirmPassword,
   });
 
@@ -41,3 +45,22 @@ exports.createUser = async (req, res, next) => {
     console.log(err);
   }
 };
+
+exports.postLogin = async (req, res, next) => {
+    const {email, password} = req.body;
+
+    const user = await User.findOne({email : email});
+    console.log('user', user)
+
+    if(!user){
+        res.status(404).json({message : "user not found."})
+        return;
+    }
+
+    if(user.password !== password){
+       return res.status(401).send("Incorrect password");
+    }
+
+    res.status(200).json({message : "Loggedin successfully", data : user})
+    
+}
