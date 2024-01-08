@@ -1,9 +1,21 @@
-const User = require("../models/user");
+const Customer = require("../models/customer");
+exports.getCustomers = async (req, res, next) => {
+    try {
+      const customers = await Customer.find();
+  
+      if (!customers || customers.length === 0) {
+        return res.status(404).json({ message: "No customers found" });
+      }
+  
+      res.status(200).json({ data: customers });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  };
+  
 
-
-
-
-exports.createUser = async (req, res, next) => {
+exports.postCustomer = async (req, res, next) => {
   const {
     first_name,
     last_name,
@@ -19,8 +31,8 @@ exports.createUser = async (req, res, next) => {
     confirmPassword,
   } = req.body;
 
-  const user = new User({
-    first_name ,
+  const customer = new Customer({
+    first_name,
     last_name,
     rate_code,
     area,
@@ -35,10 +47,10 @@ exports.createUser = async (req, res, next) => {
   });
 
   try {
-    const response = await user.save();
+    const response = await customer.save();
 
     if (response) {
-      res.status(201).json({ message: "User created successfully." });
+      res.status(201).json({ message: "customer created successfully." });
     }
   } catch (err) {
     res.status(500).json({ message: "Signup failed" });
@@ -47,20 +59,19 @@ exports.createUser = async (req, res, next) => {
 };
 
 exports.postLogin = async (req, res, next) => {
-    const {email, password} = req.body;
+  const { email, password } = req.body;
 
-    const user = await User.findOne({email : email});
-    console.log('user', user)
+  const customer = await Customer.findOne({ email: email });
+  console.log("customer", customer);
 
-    if(!user){
-        res.status(404).json({message : "user not found."})
-        return;
-    }
+  if (!customer) {
+    res.status(404).json({ message: "customer not found." });
+    return;
+  }
 
-    if(user.password !== password){
-       return res.status(401).send("Incorrect password");
-    }
+  if (customer.password !== password) {
+    return res.status(401).send("Incorrect password");
+  }
 
-    res.status(200).json({message : "Loggedin successfully", data : user})
-    
-}
+  res.status(200).json({ message: "Loggedin successfully", data: customer });
+};

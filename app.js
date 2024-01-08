@@ -4,12 +4,12 @@ const app = express();
 const PORT = 9090;
 
 
-const userRoutes = require("./routes/user");
+const customerRoutes = require("./routes/customer");
 const mongoose = require("mongoose");
 
 app.use(express.json())
 
-app.use("/auth", userRoutes);
+app.use("/auth", customerRoutes);
 app.get("/", (req, res) => {
   res.json({ email: "test@gmail.com", password: "12312313" });
 });
