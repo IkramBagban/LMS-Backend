@@ -1,2 +1,4 @@
 node_modules
-/apiSampleData
+apiSampleData.js
+.env
+
