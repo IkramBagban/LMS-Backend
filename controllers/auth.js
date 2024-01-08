@@ -1,3 +1,4 @@
+const bcrypt = require("bcrypt");
 const Customer = require("../models/customer");
 
 exports.getCustomers = async (req, res, next) => {
@@ -31,6 +32,12 @@ exports.postCustomer = async (req, res, next) => {
     confirmPassword,
   } = req.body;
 
+  const hashedPassword = await bcrypt.hash(password, 12);
+
+  if (!hashedPassword) {
+    return res.status(500).json({ message: "server error" });
+  }
+
   const customer = new Customer({
     first_name,
     last_name,
@@ -42,7 +49,7 @@ exports.postCustomer = async (req, res, next) => {
     contact_number,
     alter_Contact_Number,
     email,
-    password,
+    password: hashedPassword,
     confirmPassword,
   });
 
@@ -60,44 +67,44 @@ exports.postCustomer = async (req, res, next) => {
 
 exports.postLogin = async (req, res, next) => {
   const { email, password } = req.body;
+  try {
+    const customer = await Customer.findOne({ email: email });
 
-  const customer = await Customer.findOne({ email: email });
-  console.log("customer", customer);
+    if (!customer) {
+      res.status(404).json({ message: "customer not found." });
+      return;
+    }
 
-  if (!customer) {
-    res.status(404).json({ message: "customer not found." });
-    return;
+    const isPasswordMatch = await bcrypt.compare(password, customer.password);
+    if (!isPasswordMatch) {
+      return res.status(401).send("Incorrect password");
+    }
+
+    res.status(200).json({ message: "Loggedin successfully", data: customer });
+  } catch (e) {
+    res.status(500).send("server error");
   }
-
-  if (customer.password !== password) {
-    return res.status(401).send("Incorrect password");
-  }
-
-  res.status(200).json({ message: "Loggedin successfully", data: customer });
 };
 
-
 exports.loginAsGuest = async (req, res, next) => {
-    const {
-        email,
-        rate_code
-    } = req.body;
-  
-    const customer = new Customer({
-        email,
-        rate_code
-    });
-  
-    try {
-      const response = await customer.save();
-  
-      if (response) {
-        console.log('res', response)
-        res.status(201).json({ message: "successfully loggedin as guest" , data : response });
-      }
-    } catch (err) {
-      res.status(500).json({ message: "Signup failed" });
-      console.log(err);
+  const { email, rate_code } = req.body;
+
+  const customer = new Customer({
+    email,
+    rate_code,
+  });
+
+  try {
+    const response = await customer.save();
+
+    if (response) {
+      console.log("res", response);
+      res
+        .status(201)
+        .json({ message: "successfully loggedin as guest", data: response });
     }
-  };
-  
+  } catch (err) {
+    res.status(500).json({ message: "Signup failed" });
+    console.log(err);
+  }
+};

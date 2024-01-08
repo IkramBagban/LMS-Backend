@@ -11,7 +11,7 @@ const customerSchema = new mongoose.Schema({
   },
   rate_code: {
     type: String,
-    required: true,
+    // required: true,
   },
   area: {
     type: String,
