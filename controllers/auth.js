@@ -98,7 +98,6 @@ exports.loginAsGuest = async (req, res, next) => {
     const response = await customer.save();
 
     if (response) {
-      console.log("res", response);
       res
         .status(201)
         .json({ message: "successfully loggedin as guest", data: response });
