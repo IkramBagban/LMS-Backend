@@ -49,6 +49,15 @@ const customerSchema = new mongoose.Schema({
     type: String,
     // required: true,
   },
+  otp: {
+    type: String,
+    // required: true,
+  },
+  otpExpiration: {
+    type: String,
+    // required: true,
+  },
+  
 });
 
 module.exports = mongoose.model("Customer", customerSchema);

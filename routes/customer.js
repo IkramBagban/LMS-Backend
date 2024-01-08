@@ -12,6 +12,7 @@ router.post('/login', authController.postLogin)
 
 router.post('/guest', authController.loginAsGuest)
 
+router.post('/sendotp', authController.postSendOTP)
 
 
 module.exports = router;

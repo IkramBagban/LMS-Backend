@@ -1,6 +1,17 @@
 const bcrypt = require("bcrypt");
 const Customer = require("../models/customer");
 
+const nodemailer = require("nodemailer");
+const sendgridTransport = require("nodemailer-sendgrid-transport");
+
+const transporter = nodemailer.createTransport(
+  sendgridTransport({
+    auth: {
+      api_key: process.env.SENDGRID_API_KEY,
+    },
+  })
+);
+
 exports.getCustomers = async (req, res, next) => {
   try {
     const customers = await Customer.find();
@@ -103,7 +114,37 @@ exports.loginAsGuest = async (req, res, next) => {
         .json({ message: "successfully loggedin as guest", data: response });
     }
   } catch (err) {
-    res.status(500).json({ message: "Signup failed" });
+    res.status(500).json({ message: "Internal error" });
     console.log(err);
+  }
+};
+
+exports.postSendOTP = async (req, res, next) => {
+  const email = req.body.email;
+
+  try {
+    const response = await Customer.findOne({ email: email });
+
+    if (!response) {
+      return res.status(404).json({ message: "email not found" });
+    }
+
+    const otp = Math.floor(Math.random() * 9000 + 1000);
+    console.log(otp + " " + email);
+    transporter.sendMail({
+      to: email,
+      from: "bagbanikram@gmail.com",
+      subject: "OTP to forget password.",
+      html: `
+        <div>
+            <h3>OTP</h3>
+            ${otp}
+        </div>
+        `,
+    });
+    res.status(200).json({ message: "OTP has sent to your email", otp: otp });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal error" });
   }
 };
