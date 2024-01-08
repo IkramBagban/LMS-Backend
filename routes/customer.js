@@ -4,10 +4,14 @@ const router = express.Router();
 
 const authController = require('../controllers/auth')
 
+router.get('/customers', authController.getCustomers)
+
 router.post('/signup', authController.postCustomer)
 
 router.post('/login', authController.postLogin)
 
-router.get('/customers', authController.getCustomers)
+router.post('/guest', authController.loginAsGuest)
+
+
 
 module.exports = router;

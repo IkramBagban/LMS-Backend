@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const customerSchema = new mongoose.Schema({
   first_name: {
     type: String,
-    required: true,
+    // required: true,
   },
   last_name: {
     type: String,
@@ -43,7 +43,7 @@ const customerSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
+    // required: true,
   },
   confirmPassword: {
     type: String,
