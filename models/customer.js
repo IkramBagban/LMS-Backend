@@ -57,7 +57,21 @@ const customerSchema = new mongoose.Schema({
     type: String,
     // required: true,
   },
+  orders : [
+    {
+      orderId : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : "Order",
+      },
+      // orders : 
+    }
+  ]
   
 });
+
+customerSchema.methods.addOrder = function(orderId) {
+  this.orders.push({orderId : orderId})
+  return this.save();
+}
 
 module.exports = mongoose.model("Customer", customerSchema);
