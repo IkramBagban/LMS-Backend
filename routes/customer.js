@@ -14,5 +14,9 @@ router.post('/guest', authController.loginAsGuest)
 
 router.post('/sendotp', authController.postSendOTP)
 
+router.post('/verifyOtp', authController.postVerifyOtp)
+
+router.patch('/resetpassword', authController.postResetPassword)
+
 
 module.exports = router;

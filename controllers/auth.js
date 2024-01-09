@@ -123,13 +123,23 @@ exports.postSendOTP = async (req, res, next) => {
   const email = req.body.email;
 
   try {
-    const response = await Customer.findOne({ email: email });
+    const customer = await Customer.findOne({ email: email });
 
-    if (!response) {
+    if (!customer) {
       return res.status(404).json({ message: "email not found" });
     }
+    let otp = customer.otp;
+    // console.log('exp',customer.otpExpiration)
+    // console.log('customer.otp',customer.otp)
+    // console.log('Date.now()',Date.now())
+    if (!customer.otp || customer.otpExpiration <= Date.now()) {
+      console.log("in");
+      otp = Math.floor(Math.random() * 9000 + 1000);
+      customer.otp = otp;
+      customer.otpExpiration = Date.now() + 300000;
+    }
 
-    const otp = Math.floor(Math.random() * 9000 + 1000);
+    await customer.save();
     console.log(otp + " " + email);
     transporter.sendMail({
       to: email,
@@ -146,5 +156,67 @@ exports.postSendOTP = async (req, res, next) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Internal error" });
+  }
+};
+
+exports.postVerifyOtp = async (req, res, next) => {
+  const { email, otp } = req.body;
+
+  try {
+    const customer = await Customer.findOne({
+      email: email,
+      otp: otp,
+    });
+    console.log("customer", customer);
+
+    if (!customer) {
+      return res.status(401).json({ message: "Invalid OTP" });
+    }
+
+    if (customer.otpExpiration <= Date.now()) {
+      return res.status(401).json({ message: "Otp expired" });
+    }
+    customer.otp = undefined;
+    customer.otpExpiration = undefined;
+
+    const response = await customer.save();
+    if (!response) {
+      return res.status(500).json({ message: "server error" });
+    }
+    res.status(200).json({ message: "OTP verified successfully" });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "server error" });
+  }
+};
+
+exports.postResetPassword = async (req, res, next) => {
+  const { email, newPassword, confirmPassword } = req.body;
+  try {
+    const customer = await Customer.findOne({ email: email });
+
+    if (!customer) {
+      return res.status(404).json({ message: "Email Not Found." });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(401).json({ message: "password don't match." });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    if (!hashedPassword) {
+      return res.status(500).json({ message: "server error" });
+    }
+    customer.password = hashedPassword;
+
+    const response = await customer.save();
+
+    if (response) {
+      res.status(201).json({ message: "Password Reset." });
+    }
+  } catch (err) {
+    res.status(500).json({ message: "Password reset failed" });
+    console.log(err);
   }
 };

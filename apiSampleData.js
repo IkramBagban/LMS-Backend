@@ -17,3 +17,14 @@ const login = {
     "email" : "test@gmail.com",
     "Password" : "123123"
 }
+
+const verifyOtp = {
+    "email" : "krishjain1712@gmail.com",
+    "otp":"9101"
+}
+
+const resetpassword = {
+    "email" : "test@gmail.com",
+    "newPassword" : "123543",
+    "confirmPassword" : "123543"   
+}
