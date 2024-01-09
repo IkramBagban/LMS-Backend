@@ -1,4 +1,3 @@
-const bcrypt = require("bcrypt");
 const Order = require("../models/order");
 const Customer = require("../models/customer");
 
@@ -39,7 +38,7 @@ exports.postOrder = async (req, res, next) => {
     await customer.addOrder(response._id);
     if (response) {
       res.status(201).json({
-        message: "order has been created successfully and using body data..",
+        message: "order has been created successfully",
       });
     }
   } catch (err) {
