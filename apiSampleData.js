@@ -28,3 +28,35 @@ const resetpassword = {
     "newPassword" : "123543",
     "confirmPassword" : "123543"   
 }
+
+
+const postOrder = {
+    "branch": "YourDefaultBranchId",
+    "SpecialRequests": "Some special requests",
+    "customerID": "659c176d535467ac2730c931",
+    "custName": "YourCustomerId",
+    "subtotal": "100.00",
+    "deliveryType": "YourDeliveryType",
+    "pickupDate": "2022-01-15",
+    "order_source": "Mobile",
+    "emirate_id": "YourEmirateId",
+    "orderDelete": "-",
+    "order_item": [
+      {
+        "item": "YourItemId1",
+        "service": "YourServiceId1",
+        "DELIVERY": "YourDeliveryType1",
+        "qty": "2",
+        "Price": "50.00"
+      },
+      {
+        "item": "YourItemId2",
+        "service": "YourServiceId2",
+        "DELIVERY": "YourDeliveryType2",
+        "qty": "3",
+        "Price": "30.00"
+      }
+    ],
+    "deliveryDate": "2022-01-20"
+  }
+  
