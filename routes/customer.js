@@ -18,5 +18,7 @@ router.post('/verifyOtp', authController.postVerifyOtp)
 
 router.patch('/resetpassword', authController.postResetPassword)
 
+router.put("/update/:customerId", authController.postUpdateCustomer);
 
-module.exports = router;
+
+module.exports = router;    

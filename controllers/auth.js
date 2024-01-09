@@ -218,3 +218,50 @@ exports.postResetPassword = async (req, res, next) => {
     console.log(err);
   }
 };
+
+exports.postUpdateCustomer = async (req, res, next) => {
+  const customerId = req.params.customerId; // Assuming you can get the customer ID from the route parameters
+  const {
+    first_name,
+    last_name,
+    rate_code,
+    area,
+    street_name,
+    apartment,
+    address,
+    contact_number,
+    alter_Contact_Number,
+  } = req.body;
+
+  try {
+    // Fetch the existing customer record
+    const customer = await Customer.findById(customerId);
+
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found." });
+    }
+
+    customer.first_name = first_name || customer.first_name;
+    customer.last_name = last_name || customer.last_name;
+    customer.rate_code = rate_code || customer.rate_code;
+    customer.area = area || customer.area;
+    customer.street_name = street_name || customer.street_name;
+    customer.apartment = apartment || customer.apartment;
+    customer.address = address || customer.address;
+    customer.contact_number = contact_number || customer.contact_number;
+    customer.alter_Contact_Number =
+      alter_Contact_Number || customer.alter_Contact_Number;
+
+    const response = await customer.save();
+
+    if (response) {
+      res.status(200).json({
+        message: "Customer profile updated successfully.",
+        data: response,
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
