@@ -12,6 +12,8 @@ const orderRoutes = require("./routes/order");
 const mongoose = require("mongoose");
 
 app.use(express.json())
+
+app.use(express.urlencoded({ extended: true }));
 app.use(cors())
 
 app.use("/auth", customerRoutes);

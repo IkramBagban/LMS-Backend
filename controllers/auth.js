@@ -14,6 +14,7 @@ const transporter = nodemailer.createTransport(
 
 exports.getCustomers = async (req, res, next) => {
   try {
+    console.log("GET CUSTOMER")
     const customers = await Customer.find();
 
     if (!customers || customers.length === 0) {
@@ -42,6 +43,9 @@ exports.postCustomer = async (req, res, next) => {
     Password,
     confirmPassword,
   } = req.body;
+
+  console.log("req.body")
+  console.log(req.body)
 
   const hashedPassword = await bcrypt.hash(Password, 12);
 
