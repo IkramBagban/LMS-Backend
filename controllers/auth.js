@@ -39,11 +39,11 @@ exports.postCustomer = async (req, res, next) => {
     contact_number,
     alter_Contact_Number,
     email,
-    password,
+    Password,
     confirmPassword,
   } = req.body;
 
-  const hashedPassword = await bcrypt.hash(password, 12);
+  const hashedPassword = await bcrypt.hash(Password, 12);
 
   if (!hashedPassword) {
     return res.status(500).json({ message: "server error" });
@@ -60,7 +60,7 @@ exports.postCustomer = async (req, res, next) => {
     contact_number,
     alter_Contact_Number,
     email,
-    password: hashedPassword,
+    Password: hashedPassword,
     confirmPassword,
   });
 
@@ -77,7 +77,7 @@ exports.postCustomer = async (req, res, next) => {
 };
 
 exports.postLogin = async (req, res, next) => {
-  const { email, password } = req.body;
+  const { email, Password } = req.body;
   try {
     const customer = await Customer.findOne({ email: email });
 
@@ -86,7 +86,7 @@ exports.postLogin = async (req, res, next) => {
       return;
     }
 
-    const isPasswordMatch = await bcrypt.compare(password, customer.password);
+    const isPasswordMatch = await bcrypt.compare(Password, customer.Password);
     if (!isPasswordMatch) {
       return res.status(401).send("Incorrect password");
     }
@@ -206,7 +206,7 @@ exports.postResetPassword = async (req, res, next) => {
     if (!hashedPassword) {
       return res.status(500).json({ message: "server error" });
     }
-    customer.password = hashedPassword;
+    customer.Password = hashedPassword;
 
     const response = await customer.save();
 
