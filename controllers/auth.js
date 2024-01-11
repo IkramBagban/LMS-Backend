@@ -193,29 +193,31 @@ exports.postVerifyOtp = async (req, res, next) => {
 };
 
 exports.postResetPassword = async (req, res, next) => {
-  const { email, newPassword, confirmPassword } = req.body;
+  const { email, Password, confirmPassword } = req.body;
   try {
+    console.log(req.body)
     const customer = await Customer.findOne({ email: email });
 
     if (!customer) {
       return res.status(404).json({ message: "Email Not Found." });
     }
 
-    if (newPassword !== confirmPassword) {
+    if (Password !== confirmPassword) {
       return res.status(401).json({ message: "password don't match." });
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    const hashedPassword = await bcrypt.hash(Password, 12);
 
     if (!hashedPassword) {
       return res.status(500).json({ message: "server error" });
     }
     customer.Password = hashedPassword;
+    customer.confirmPassword = confirmPassword
 
     const response = await customer.save();
 
     if (response) {
-      res.status(201).json({ message: "Password Reset." });
+      res.status(200).json({ message: "Password Reset." });
     }
   } catch (err) {
     res.status(500).json({ message: "Password reset failed" });

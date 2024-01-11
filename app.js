@@ -22,7 +22,7 @@ app.use("/orders", orderRoutes);
 app.get("/", (req, res) => {
   res.json({ email: "test@gmail.com", password: "12312313" });
 });
-
+  
 mongoose
   .connect("mongodb://127.0.0.1:27017/ModernLaundry")
   .then(() => {
@@ -30,6 +30,7 @@ mongoose
       console.log("server is listening on port " + PORT);
     });
   })
+
   .catch((err) => {
     console.log(err);
   });
