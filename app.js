@@ -1,7 +1,7 @@
 const express = require("express");
 
 const app = express();
-const PORT = 9090;
+const PORT = process.env.PORT ||  9090;
 
 const cors = require('cors')
 require('dotenv').config();
@@ -22,13 +22,15 @@ app.use("/orders", orderRoutes);
 app.get("/", (req, res) => {
   res.json({ email: "test@gmail.com", password: "12312313" });
 });
+
+app.listen(PORT, () => {
+  console.log("server is listening on PORT " + PORT);
+});
   
 mongoose
-  .connect("mongodb://127.0.0.1:27017/ModernLaundry")
+  .connect(process.env.mongoURI)
   .then(() => {
-    app.listen(PORT, () => {
-      console.log("server is listening on port " + PORT);
-    });
+    console.log('connected')
   })
 
   .catch((err) => {

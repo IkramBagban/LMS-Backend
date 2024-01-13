@@ -45,7 +45,7 @@ exports.postCustomer = async (req, res, next) => {
   } = req.body;
 
   console.log("req.body")
-  console.log(req.body)
+  console.log('data',req.body)
 
   const hashedPassword = await bcrypt.hash(Password, 12);
 
