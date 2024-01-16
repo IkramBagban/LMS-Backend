@@ -44,9 +44,9 @@ exports.postOrder = async (req, res, next) => {
     customerID,
   } = req.body;
 
-  console.log('req.body', req.body)
-  customerID = customerID || "659fd037814c3d2d47337600"
-  console.log('customer id' , customerID)
+  // console.log('req.body', req.body)
+  // customerID = customerID || "659fd037814c3d2d47337600"
+  // console.log('customer id' , customerID)
 
   try {
     const order = new Order({

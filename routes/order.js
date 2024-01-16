@@ -7,7 +7,7 @@ const orderController = require('../controllers/order')
 
 router.get('/:customerID', orderController.getOrder)
 
-router.post('/', orderController.postOrd    er)
+router.post('/', orderController.postOrder)
 
 
 module.exports = router;
