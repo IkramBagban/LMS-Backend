@@ -1,32 +1,19 @@
 const Order = require("../models/order");
 const Customer = require("../models/customer");
 
-
 exports.getOrder = async (req, res, next) => {
-  // id,
-  // subtotal,
-  // pickupDate,
-  // deliveryDate,
-  // emirate_id,
-  // deliveryType,
-  // orderStatus,
-  // "Total Items": [
-  //   {
-  //     item,
-  //     qty,
-  //     service,
-  //     DELIVERY,
-  //     Price,
-  //   },
-  // ],
-  // subtotal,
-
   const customerID = req.params.customerID;
-  // 
-  const order = await Order.find({customerID : customerID})
-  console.log(order.length)
-  res.status(200).json({message : "Order Fetched Successfully", data : order})
-}
+  
+  const order = await Order.find({ customerID: customerID });
+
+  res
+    .status(200)
+    .json({
+      message: "Order Fetched Successfully",
+      data: order,
+      success: true,
+    });
+};
 
 exports.postOrder = async (req, res, next) => {
   let {
@@ -44,9 +31,6 @@ exports.postOrder = async (req, res, next) => {
     customerID,
   } = req.body;
 
-  // console.log('req.body', req.body)
-  // customerID = customerID || "659fd037814c3d2d47337600"
-  // console.log('customer id' , customerID)
 
   try {
     const order = new Order({
@@ -70,10 +54,11 @@ exports.postOrder = async (req, res, next) => {
     if (response) {
       res.status(201).json({
         message: "order has been created successfully",
+        success: true,
       });
     }
   } catch (err) {
-    res.status(500).json({ message: "order failed" });
     console.log(err);
+    res.status(500).json({ message: "order failed", success: false });
   }
 };

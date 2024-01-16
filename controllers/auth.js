@@ -14,16 +14,35 @@ const transporter = nodemailer.createTransport(
 
 exports.getCustomers = async (req, res, next) => {
   try {
-    console.log("GET CUSTOMER");
     const customers = await Customer.find();
 
     if (!customers || customers.length === 0) {
       return res
         .status(404)
-        .json({ message: "No customers found", success: false });
+        .json({ message: "No customers found.", success: false });
     }
 
     res.status(200).json({ data: customers, success: true });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error", success: false });
+  }
+};
+
+exports.getCustomer = async (req, res, next) => {
+  const customerId = req.params.customerId;
+  try {
+    const customer = await Customer.find({ _id: customerId });
+    console.log('custoemr')
+    // console.log(customer)
+
+    if (!customer || customer.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No customer found.", success: false });
+    }
+
+    res.status(200).json({ data: customer, success: true });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error", success: false });
@@ -101,7 +120,9 @@ exports.postLogin = async (req, res, next) => {
 
     const isPasswordMatch = await bcrypt.compare(Password, customer.Password);
     if (!isPasswordMatch) {
-      return res.status(401).json({message : "Incorrect password", success : false});
+      return res
+        .status(401)
+        .json({ message: "Incorrect password", success: false });
     }
 
     res.status(200).json({
@@ -153,7 +174,9 @@ exports.postSendOTP = async (req, res, next) => {
     const customer = await Customer.findOne({ email: email });
 
     if (!customer) {
-      return res.status(404).json({ message: "email not found" , success : false});
+      return res
+        .status(404)
+        .json({ message: "email not found", success: false });
     }
     let otp = customer.otp;
 
@@ -176,7 +199,9 @@ exports.postSendOTP = async (req, res, next) => {
             </div>
             `,
     });
-    res.status(200).json({ message: "OTP has sent to your email", otp: otp , success:true});
+    res
+      .status(200)
+      .json({ message: "OTP has sent to your email", otp: otp, success: true });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Internal error", success: false });
@@ -207,10 +232,12 @@ exports.postVerifyOtp = async (req, res, next) => {
     if (!response) {
       return res.status(500).json({ message: "server error", success: false });
     }
-    res.status(200).json({ message: "OTP verified successfully" , success: true});
+    res
+      .status(200)
+      .json({ message: "OTP verified successfully", success: true });
   } catch (err) {
     console.log(err);
-    return res.status(500).json({ message: "server error" , success: false});
+    return res.status(500).json({ message: "server error", success: false });
   }
 };
 
@@ -221,17 +248,21 @@ exports.postResetPassword = async (req, res, next) => {
     const customer = await Customer.findOne({ email: email });
 
     if (!customer) {
-      return res.status(404).json({ message: "Email Not Found." , success: false});
+      return res
+        .status(404)
+        .json({ message: "Email Not Found.", success: false });
     }
 
     if (Password !== confirmPassword) {
-      return res.status(401).json({ message: "password don't match.", success: false });
+      return res
+        .status(401)
+        .json({ message: "password don't match.", success: false });
     }
 
     const hashedPassword = await bcrypt.hash(Password, 12);
 
     if (!hashedPassword) {
-      return res.status(500).json({ message: "server error" , success: false});
+      return res.status(500).json({ message: "server error", success: false });
     }
     customer.Password = hashedPassword;
     customer.confirmPassword = confirmPassword;
@@ -242,7 +273,7 @@ exports.postResetPassword = async (req, res, next) => {
       res.status(200).json({ message: "Password Reset.", success: true });
     }
   } catch (err) {
-    res.status(500).json({ message: "Password reset failed" , success: false });
+    res.status(500).json({ message: "Password reset failed", success: false });
     console.log(err);
   }
 };
@@ -266,7 +297,9 @@ exports.postUpdateCustomer = async (req, res, next) => {
     const customer = await Customer.findById(customerId);
 
     if (!customer) {
-      return res.status(404).json({ message: "Customer not found." , success: false});
+      return res
+        .status(404)
+        .json({ message: "Customer not found.", success: false });
     }
 
     customer.first_name = first_name || customer.first_name;
@@ -285,7 +318,8 @@ exports.postUpdateCustomer = async (req, res, next) => {
     if (response) {
       res.status(200).json({
         message: "Customer profile updated successfully.",
-        data: response, success: true
+        data: response,
+        success: true,
       });
     }
   } catch (err) {

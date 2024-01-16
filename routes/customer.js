@@ -7,6 +7,7 @@ const router = express.Router();
 const authController = require("../controllers/auth");
 
 router.get("/customers", authController.getCustomers);
+router.get("/customers/:customerId", authController.getCustomer);
 
 router.post(
   "/signup",
