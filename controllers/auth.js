@@ -14,17 +14,19 @@ const transporter = nodemailer.createTransport(
 
 exports.getCustomers = async (req, res, next) => {
   try {
-    console.log("GET CUSTOMER")
+    console.log("GET CUSTOMER");
     const customers = await Customer.find();
 
     if (!customers || customers.length === 0) {
-      return res.status(404).json({ message: "No customers found" });
+      return res
+        .status(404)
+        .json({ message: "No customers found", success: false });
     }
 
-    res.status(200).json({ data: customers });
+    res.status(200).json({ data: customers, success: true });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error", success: false });
   }
 };
 
@@ -44,13 +46,18 @@ exports.postCustomer = async (req, res, next) => {
     confirmPassword,
   } = req.body;
 
-  console.log("req.body")
-  console.log('data',req.body)
+  const existingCustomer = await Customer.findOne({ email: email });
+
+  if (existingCustomer) {
+    return res
+      .status(409)
+      .json({ message: "Email already in use", success: false });
+  }
 
   const hashedPassword = await bcrypt.hash(Password, 12);
 
   if (!hashedPassword) {
-    return res.status(500).json({ message: "server error" });
+    return res.status(500).json({ message: "server error", success: false });
   }
 
   const customer = new Customer({
@@ -72,10 +79,12 @@ exports.postCustomer = async (req, res, next) => {
     const response = await customer.save();
 
     if (response) {
-      res.status(201).json({ message: "customer created successfully." });
+      res
+        .status(201)
+        .json({ message: "customer created successfully.", success: true });
     }
   } catch (err) {
-    res.status(500).json({ message: "Signup failed" });
+    res.status(500).json({ message: "Signup failed", success: false });
     console.log(err);
   }
 };
@@ -86,23 +95,35 @@ exports.postLogin = async (req, res, next) => {
     const customer = await Customer.findOne({ email: email });
 
     if (!customer) {
-      res.status(404).json({ message: "customer not found." });
+      res.status(404).json({ message: "customer not found.", success: false });
       return;
     }
 
     const isPasswordMatch = await bcrypt.compare(Password, customer.Password);
     if (!isPasswordMatch) {
-      return res.status(401).send("Incorrect password");
+      return res.status(401).json({message : "Incorrect password", success : false});
     }
 
-    res.status(200).json({ message: "Loggedin successfully", data: customer });
+    res.status(200).json({
+      message: "Loggedin successfully",
+      data: customer,
+      success: true,
+    });
   } catch (e) {
-    res.status(500).send("server error");
+    res.status(500).json({ message: "server error", success: false });
   }
 };
 
 exports.loginAsGuest = async (req, res, next) => {
   const { email, rate_code } = req.body;
+
+  const existingCustomer = await Customer.findOne({ email: email });
+
+  if (existingCustomer) {
+    return res
+      .status(409)
+      .json({ message: "Email already in use", success: false });
+  }
 
   const customer = new Customer({
     email,
@@ -113,12 +134,14 @@ exports.loginAsGuest = async (req, res, next) => {
     const response = await customer.save();
 
     if (response) {
-      res
-        .status(201)
-        .json({ message: "successfully loggedin as guest", data: response });
+      res.status(201).json({
+        message: "successfully loggedin as guest",
+        data: response,
+        success: true,
+      });
     }
   } catch (err) {
-    res.status(500).json({ message: "Internal error" });
+    res.status(500).json({ message: "Internal error", success: false });
     console.log(err);
   }
 };
@@ -130,7 +153,7 @@ exports.postSendOTP = async (req, res, next) => {
     const customer = await Customer.findOne({ email: email });
 
     if (!customer) {
-      return res.status(404).json({ message: "email not found" });
+      return res.status(404).json({ message: "email not found" , success : false});
     }
     let otp = customer.otp;
 
@@ -142,7 +165,6 @@ exports.postSendOTP = async (req, res, next) => {
     }
 
     await customer.save();
-    console.log(otp + " " + email);
     transporter.sendMail({
       to: email,
       from: "bagbanikram@gmail.com",
@@ -154,10 +176,10 @@ exports.postSendOTP = async (req, res, next) => {
             </div>
             `,
     });
-    res.status(200).json({ message: "OTP has sent to your email", otp: otp });
+    res.status(200).json({ message: "OTP has sent to your email", otp: otp , success:true});
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Internal error" });
+    res.status(500).json({ message: "Internal error", success: false });
   }
 };
 
@@ -172,55 +194,55 @@ exports.postVerifyOtp = async (req, res, next) => {
     console.log("customer", customer);
 
     if (!customer) {
-      return res.status(401).json({ message: "Invalid OTP" });
+      return res.status(401).json({ message: "Invalid OTP", success: false });
     }
 
     if (customer.otpExpiration <= Date.now()) {
-      return res.status(401).json({ message: "Otp expired" });
+      return res.status(401).json({ message: "Otp expired", success: false });
     }
     customer.otp = undefined;
     customer.otpExpiration = undefined;
 
     const response = await customer.save();
     if (!response) {
-      return res.status(500).json({ message: "server error" });
+      return res.status(500).json({ message: "server error", success: false });
     }
-    res.status(200).json({ message: "OTP verified successfully" });
+    res.status(200).json({ message: "OTP verified successfully" , success: true});
   } catch (err) {
     console.log(err);
-    return res.status(500).json({ message: "server error" });
+    return res.status(500).json({ message: "server error" , success: false});
   }
 };
 
 exports.postResetPassword = async (req, res, next) => {
   const { email, Password, confirmPassword } = req.body;
   try {
-    console.log(req.body)
+    console.log(req.body);
     const customer = await Customer.findOne({ email: email });
 
     if (!customer) {
-      return res.status(404).json({ message: "Email Not Found." });
+      return res.status(404).json({ message: "Email Not Found." , success: false});
     }
 
     if (Password !== confirmPassword) {
-      return res.status(401).json({ message: "password don't match." });
+      return res.status(401).json({ message: "password don't match.", success: false });
     }
 
     const hashedPassword = await bcrypt.hash(Password, 12);
 
     if (!hashedPassword) {
-      return res.status(500).json({ message: "server error" });
+      return res.status(500).json({ message: "server error" , success: false});
     }
     customer.Password = hashedPassword;
-    customer.confirmPassword = confirmPassword
+    customer.confirmPassword = confirmPassword;
 
     const response = await customer.save();
 
     if (response) {
-      res.status(200).json({ message: "Password Reset." });
+      res.status(200).json({ message: "Password Reset.", success: true });
     }
   } catch (err) {
-    res.status(500).json({ message: "Password reset failed" });
+    res.status(500).json({ message: "Password reset failed" , success: false });
     console.log(err);
   }
 };
@@ -244,7 +266,7 @@ exports.postUpdateCustomer = async (req, res, next) => {
     const customer = await Customer.findById(customerId);
 
     if (!customer) {
-      return res.status(404).json({ message: "Customer not found." });
+      return res.status(404).json({ message: "Customer not found." , success: false});
     }
 
     customer.first_name = first_name || customer.first_name;
@@ -263,11 +285,11 @@ exports.postUpdateCustomer = async (req, res, next) => {
     if (response) {
       res.status(200).json({
         message: "Customer profile updated successfully.",
-        data: response,
+        data: response, success: true
       });
     }
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error", success: false });
   }
 };
