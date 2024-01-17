@@ -1,22 +1,28 @@
-const http = require('http')
+const http = require("http");
 const express = require("express");
-const cors = require('cors')
+const cors = require("cors");
 const mongoose = require("mongoose");
-const {Server} = require('socket.io')
-require('dotenv').config();
-
-
+const { Server } = require("socket.io");
+require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT ||  9090;
+const PORT = process.env.PORT || 9090;
 
-
-app.use(express.json())
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors())
+app.use(cors());
 
+const customerRoutes = require("./routes/customer");
+const productRoutes = require("./routes/product");
+const orderRoutes = require("./routes/order");
 
-const server = http.createServer(app)
+const messageController = require("./controllers/message");
+
+app.use("/auth", customerRoutes);
+app.use("/products", productRoutes);
+app.use("/orders", orderRoutes);
+
+const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:3000", // The origin of your frontend
@@ -26,33 +32,25 @@ const io = new Server(server, {
 // A simple in-memory structure to store messages
 let messages = [];
 
-io.on('connection',(socket)=>{
-  console.log('A user connected:', socket.id)
+io.on("connection", (socket) => {
+  console.log("A user connected:", socket.id);
 
-   // Send existing messages to the newly connected user
-   socket.emit('existing_messages', messages);
-   
+  // Send existing messages to the newly connected user
+  socket.emit("existing_messages", messages);
 
-   // Listen for new messages
-   socket.on('new_message', (message) => {
-     console.log('New message received:', message);
-     messages.push(message); // Store the message
-     io.emit('message_received', message); // Broadcast the message to all clients
-   });
+  // Listen for new messages
+  socket.on("new_message", (message) => {
+    //  console.log('New message received:', message);
+    messageController.saveMessage(message);
+    //  messages.push(message); // Store the message
 
-  socket.on('diconnect', ()=>{
-    console.log('user disconneted', socket.io)
-  })
-})
+    io.emit("message_received", message); // Broadcast the message to all clients
+  });
 
-const customerRoutes = require("./routes/customer");
-const productRoutes = require("./routes/product");
-const orderRoutes = require("./routes/order");
-
-
-app.use("/auth", customerRoutes);
-app.use("/products", productRoutes);
-app.use("/orders", orderRoutes);
+  socket.on("diconnect", () => {
+    console.log("user disconneted", socket.io);
+  });
+});
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to Laundry Service API" });
@@ -61,11 +59,11 @@ app.get("/", (req, res) => {
 server.listen(PORT, () => {
   console.log("Server is listening on PORT " + PORT);
 });
-  
+
 mongoose
   .connect(process.env.mongoURI)
   .then(() => {
-    console.log('connected')
+    console.log("connected");
   })
 
   .catch((err) => {
