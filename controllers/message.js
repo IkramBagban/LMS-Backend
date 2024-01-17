@@ -1,11 +1,18 @@
 const Message = require('../models/message')
-exports.saveMessage = (messageData) =>{
+exports.saveMessage = async (messageData) =>{
     // const messageData = req.body;
 
     const message = new Message(messageData)
-    console.log('message data')
-
-    message.save();
-
-
+    // await Message.deleteMany({})
+    return await message.save();
 }
+exports.getMessages =async (messageData) =>{
+    // const messageData = req.body;
+
+    // const message = new Message(messageData)
+    const messages = await Message.find()
+    return messages
+    // message.save();
+}
+
+exports.getMessages

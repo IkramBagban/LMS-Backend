@@ -15,6 +15,9 @@ const messageSchema = new mongoose.Schema({
     required: true,
     ref: 'User'  
   },
+  name  : {
+    type : String
+  },
   timestamp: {
     type: Date,
     default: Date.now
