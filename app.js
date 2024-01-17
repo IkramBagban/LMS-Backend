@@ -1,30 +1,65 @@
+const http = require('http')
 const express = require("express");
+const cors = require('cors')
+const mongoose = require("mongoose");
+const {Server} = require('socket.io')
+require('dotenv').config();
+
+
 
 const app = express();
 const PORT = process.env.PORT ||  9090;
 
-const cors = require('cors')
-require('dotenv').config();
+
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }));
+app.use(cors())
+
+
+const server = http.createServer(app)
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000", // The origin of your frontend
+    methods: ["GET", "POST"], // Allowed HTTP methods
+  },
+});
+// A simple in-memory structure to store messages
+let messages = [];
+
+io.on('connection',(socket)=>{
+  console.log('A user connected:', socket.id)
+
+   // Send existing messages to the newly connected user
+   socket.emit('existing_messages', messages);
+   
+
+   // Listen for new messages
+   socket.on('new_message', (message) => {
+     console.log('New message received:', message);
+     messages.push(message); // Store the message
+     io.emit('message_received', message); // Broadcast the message to all clients
+   });
+
+  socket.on('diconnect', ()=>{
+    console.log('user disconneted', socket.io)
+  })
+})
 
 const customerRoutes = require("./routes/customer");
 const productRoutes = require("./routes/product");
 const orderRoutes = require("./routes/order");
-const mongoose = require("mongoose");
 
-app.use(express.json())
-
-app.use(express.urlencoded({ extended: true }));
-app.use(cors())
 
 app.use("/auth", customerRoutes);
 app.use("/products", productRoutes);
 app.use("/orders", orderRoutes);
+
 app.get("/", (req, res) => {
-  res.json({ email: "test@gmail.com", password: "12312313" });
+  res.json({ message: "Welcome to Laundry Service API" });
 });
 
-app.listen(PORT, () => {
-  console.log("server is listening on PORT " + PORT);
+server.listen(PORT, () => {
+  console.log("Server is listening on PORT " + PORT);
 });
   
 mongoose
