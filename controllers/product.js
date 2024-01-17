@@ -1,11 +1,7 @@
-
 const Product = require("../models/product");
 // const { data } = require("../productdata");
 
-exports.getProducts = async (req,res) =>{
-    // await Product.create(data)
-   const products =  await Product.find()
-//    console.log('data',products)
-   
-    res.json(products);
-}
+exports.getProducts = async (req, res) => {
+  const products = await Product.find();
+  res.json(products);
+};

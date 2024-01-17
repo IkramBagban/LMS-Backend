@@ -1,18 +1,16 @@
-const Message = require('../models/message')
-exports.saveMessage = async (messageData) =>{
-    // const messageData = req.body;
+const Message = require("../models/message");
 
-    const message = new Message(messageData)
-    // await Message.deleteMany({})
-    return await message.save();
-}
-exports.getMessages =async (messageData) =>{
-    // const messageData = req.body;
+exports.saveMessage = async (messageData) => {
+  const message = new Message(messageData);
+  return await message.save();
+};
+exports.getMessages = async (req, res) => {
+  const senderId = req.params.senderId;
+  const messages = await Message.find({
+    $or: [{ senderId: senderId }, { recipient: senderId }],
+  });
+  res.json({ data: messages });
+  return messages;
+};
 
-    // const message = new Message(messageData)
-    const messages = await Message.find()
-    return messages
-    // message.save();
-}
-
-exports.getMessages
+exports.getMessages;
