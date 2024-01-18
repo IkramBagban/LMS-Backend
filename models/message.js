@@ -3,17 +3,17 @@ const mongoose = require('mongoose');
 const messageSchema = new mongoose.Schema({
   message: {
     type: String,
-    required: true
+    // required: true
   },
   senderId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'User' 
+    // required: true,
+    ref: 'Customer' 
   },
   recipient: {  
-    type: mongoose.Schema.Types.Mixed,
-    required: true,
-    ref: 'User'  
+    type: mongoose.Schema.Types.ObjectId,
+    // required: true,
+    ref: 'Customer'  
   },
   name  : {
     type : String

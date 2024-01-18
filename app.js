@@ -27,7 +27,7 @@ app.use("/message", messageRotues);
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: '*', 
+    origin: 'http://localhost:3000', 
     methods: ["GET", "POST"], 
   },
 });
@@ -52,7 +52,6 @@ io.on("connection", async (socket) => {
     });
 
     // console.log('savedMessage', savedMessage)
-    // Emit to sender
     const senderSocketId = userSocketMap[senderId];
     // console.log('userscoket', userSocketMap)
     // console.log('senderSocketId',senderSocketId)
