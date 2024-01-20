@@ -24,7 +24,8 @@ exports.getAccounts = async (req, res) => {
       success: true,
     });
   } catch (err) {
-    console.error(err);
+    
+    console.error('getaccounts in catch');
     res.status(500).json({ message: "Internal server error", success: false });
   }
 };
