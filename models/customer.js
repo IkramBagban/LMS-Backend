@@ -64,6 +64,12 @@ const customerSchema = new mongoose.Schema({
         ref : "Order",
       },
     }
+  ],
+  chats : [
+    {
+      type : mongoose.Schema.Types.ObjectId,
+      ref : 'Message'
+    }
   ]
   
 });
