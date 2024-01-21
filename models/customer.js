@@ -57,31 +57,43 @@ const customerSchema = new mongoose.Schema({
     type: String,
     // required: true,
   },
-  orders : [
+  orders: [
     {
-      orderId : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : "Order",
+      orderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Order",
       },
-    }
+    },
   ],
-  chats : [
+  isStartedChatting: {
+    type : Boolean,
+     default : false
+  },
+  chats: [
     {
-      type : mongoose.Schema.Types.ObjectId,
-      ref : 'Message'
-    }
-  ]
-  
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Message",
+    },
+  ],
 });
 
-customerSchema.methods.addOrder = function(orderId) {
-  this.orders.push({orderId : orderId})
+customerSchema.methods.addOrder = function (orderId) {
+  this.orders.push({ orderId: orderId });
+  return this.save();
+};
+
+customerSchema.methods.addMessage = function (messageId) {
+  this.chats.push(messageId);
+  return this.save();
+};
+
+customerSchema.methods.setIsStartedChatting = function(){
+  if(this.isStartedChatting) {
+    console.log('Already Started Chatting')
+    return;
+  };
+  console.log('Starting new converstaion')
+  this.isStartedChatting = true;
   return this.save();
 }
-
-customerSchema.methods.addMessage = function(messageId){
-  this.chats.push(messageId)
-  return this.save();
-}
-
 module.exports = mongoose.model("Customer", customerSchema);

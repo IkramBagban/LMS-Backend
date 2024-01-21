@@ -54,13 +54,18 @@ io.on("connection", async (socket) => {
         to: to ? to : undefined,
       });
 
-      const sender = await Customer.findById({ _id: senderId });
-      await sender.addMessage(savedMessage._id);
+      try {
+        const sender = await Customer.findById({ _id: senderId });
+        await sender.setIsStartedChatting();
+        await sender.addMessage(savedMessage._id);
 
-      // console.log('savedMessage', savedMessage)
+        const recipientUser = await Customer.findById(recipient);
+        await recipientUser.setIsStartedChatting();
+      } catch (err) {
+        console.log("got an error", err);
+      }
+
       const senderSocketId = userSocketMap[senderId];
-      // console.log('userscoket', userSocketMap)
-      // console.log('senderSocketId',senderSocketId)
       if (senderSocketId) {
         io.to(senderSocketId).emit("message_received", savedMessage);
       }
