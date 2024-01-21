@@ -79,4 +79,9 @@ customerSchema.methods.addOrder = function(orderId) {
   return this.save();
 }
 
+customerSchema.methods.addMessage = function(messageId){
+  this.chats.push(messageId)
+  return this.save();
+}
+
 module.exports = mongoose.model("Customer", customerSchema);

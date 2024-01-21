@@ -18,6 +18,7 @@ const orderRoutes = require("./routes/order");
 const messageRotues = require("./routes/message");
 
 const messageController = require("./controllers/message");
+const Customer = require("./models/customer");
 
 app.use("/auth", customerRoutes);
 app.use("/products", productRoutes);
@@ -27,8 +28,8 @@ app.use("/message", messageRotues);
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000', 
-    methods: ["GET", "POST"], 
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
   },
 });
 
@@ -38,32 +39,38 @@ const userSocketMap = {};
 io.on("connection", async (socket) => {
   console.log("A user connected:", socket.id);
 
-  socket.on('register_user', (userId) => {
+  socket.on("register_user", (userId) => {
     userSocketMap[userId] = socket.id;
   });
 
-  socket.on("new_message", async ({ message, senderId, recipient, name, to }) => {
-    const savedMessage = await messageController.saveMessage({
-      message,
-      senderId,
-      recipient,
-      name,
-      to : to ? to : undefined
-    });
+  socket.on(
+    "new_message",
+    async ({ message, senderId, recipient, name, to }) => {
+      const savedMessage = await messageController.saveMessage({
+        message,
+        senderId,
+        recipient,
+        name,
+        to: to ? to : undefined,
+      });
 
-    // console.log('savedMessage', savedMessage)
-    const senderSocketId = userSocketMap[senderId];
-    // console.log('userscoket', userSocketMap)
-    // console.log('senderSocketId',senderSocketId)
-    if (senderSocketId) {
-      io.to(senderSocketId).emit("message_received", savedMessage);
-    }
+      const sender = await Customer.findById({ _id: senderId });
+      await sender.addMessage(savedMessage._id);
 
-    const recipientSocketId = userSocketMap[recipient];
-    if (recipientSocketId) {
-      io.to(recipientSocketId).emit("message_received", savedMessage);
+      // console.log('savedMessage', savedMessage)
+      const senderSocketId = userSocketMap[senderId];
+      // console.log('userscoket', userSocketMap)
+      // console.log('senderSocketId',senderSocketId)
+      if (senderSocketId) {
+        io.to(senderSocketId).emit("message_received", savedMessage);
+      }
+
+      const recipientSocketId = userSocketMap[recipient];
+      if (recipientSocketId) {
+        io.to(recipientSocketId).emit("message_received", savedMessage);
+      }
     }
-  });
+  );
 
   socket.on("disconnect", () => {
     // delete the user from the map ids.

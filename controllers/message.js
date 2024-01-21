@@ -9,7 +9,9 @@ exports.saveMessage = async (messageData) => {
 
 exports.getAccounts = async (req, res) => {
   try {
-    const accounts = await Customer.find().select("first_name last_name email");
+    const accounts = await Customer.find()
+      .select("first_name last_name email")
+      .populate("chats");
 
     if (!accounts || accounts.length === 0) {
       return res
@@ -24,8 +26,7 @@ exports.getAccounts = async (req, res) => {
       success: true,
     });
   } catch (err) {
-    
-    console.error('getaccounts in catch');
+    console.error("getaccounts in catch");
     res.status(500).json({ message: "Internal server error", success: false });
   }
 };
