@@ -10,7 +10,7 @@ exports.saveMessage = async (messageData) => {
 exports.getAccounts = async (req, res) => {
   try {
     const accounts = await Customer.find()
-      .select("first_name last_name email")
+      .select("first_name last_name email isStartedChatting")
       .populate("chats");
 
     if (!accounts || accounts.length === 0) {
