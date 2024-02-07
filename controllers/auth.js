@@ -33,8 +33,6 @@ exports.getCustomer = async (req, res, next) => {
   const customerId = req.params.customerId;
   try {
     const customer = await Customer.find({ _id: customerId });
-    console.log('custoemr')
-    // console.log(customer)
 
     if (!customer || customer.length === 0) {
       return res

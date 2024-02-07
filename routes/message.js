@@ -1,17 +1,11 @@
-const express = require('express')
+const express = require("express");
 
 const router = express.Router();
 
-const messageController = require('../controllers/message')
+const messageController = require("../controllers/message");
 
-router.get('/accounts', messageController.getAccounts)
-// router.get('/accounts/messages', messageController.getAccounts)
+router.get("/accounts", messageController.getAccounts);
 
-
-router.get('/:senderId', messageController.getMessages)
-
-
-// router.post('/', orderController.postOrder)
-
+router.get("/:senderId", messageController.getMessages);
 
 module.exports = router;

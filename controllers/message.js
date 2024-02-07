@@ -3,7 +3,6 @@ const Message = require("../models/message");
 
 exports.saveMessage = async (messageData) => {
   const message = new Message(messageData);
-  //   await Message.deleteMany()
   return await message.save();
 };
 
@@ -33,7 +32,6 @@ exports.getAccounts = async (req, res) => {
 
 exports.getMessages = async (req, res) => {
   const senderId = req.params.senderId;
-  //   const recipient = req.params.recipient;
   const messages = await Message.find({
     $or: [{ senderId: senderId }, { recipient: senderId }],
   });
